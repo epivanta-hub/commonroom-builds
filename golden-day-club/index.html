@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#062c5c">
+<meta name="description" content="Golden Day Club mobile lending, collections, ledger, and portfolio management.">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon.svg">
+<title>Golden Day Club — Mobile Lending</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<section id="loginView" class="login-shell">
+  <div class="login-card">
+    <div class="login-top"><h1>Golden Day Club</h1><p>Lending, collections, and ledger control.</p></div>
+    <div class="login-body">
+      <div class="demo-box"><strong>Live beta demo accounts</strong><br>Admin: <b>admin</b> / <b>golden123</b><br>Lender: <b>lender</b> / <b>1234</b><br>Delegated manager: <b>mary</b> / <b>1234</b></div>
+      <form id="loginForm" style="padding:0"><label>Username<input id="loginUsername" autocomplete="username" required></label><label>Password<input id="loginPassword" type="password" autocomplete="current-password" required></label><button class="btn btn-primary" style="width:100%">Sign In</button></form>
+    </div>
+  </div>
+</section>
+
+<div id="appView" class="app hidden">
+<header>
+  <div class="brand-row"><div><h1>Golden Day Club</h1><p class="subtitle">Mobile lending and collection control</p></div><div style="display:flex;gap:7px;align-items:center"><button id="installAppBtn" class="install-btn hidden">Install</button><div class="badge" id="todayLabel"></div></div></div>
+  <div class="user-row"><div class="user-mini"><strong id="currentUserName"></strong><span id="currentUserRole"></span><div class="role-scope" id="currentUserScope"></div></div><button class="logout" id="logoutBtn">Log out</button></div>
+</header>
+<main>
+  <section class="summary">
+    <div class="stat"><span>Principal Outstanding</span><strong id="moneyOut">$0</strong></div>
+    <div class="stat"><span>Total Balance Due</span><strong id="expectedBack">$0</strong></div>
+    <div class="stat"><span>Income Collected</span><strong id="profitEarned">$0</strong></div>
+    <div class="stat"><span>Overdue Accounts</span><strong id="overdueCount">0</strong></div>
+  </section>
+  <nav class="tabs">
+    <button class="tab active" data-tab="dashboard">Dashboard</button>
+    <button class="tab" data-tab="loans">Loans</button>
+    <button class="tab" data-tab="ledger">Ledger</button>
+    <button class="tab" data-tab="borrowers">Borrowers</button>
+    <button class="tab" data-tab="groups">Groups</button>
+    <button class="tab admin-only" data-tab="users">Users</button>
+    <button class="tab lender-admin-only" data-tab="records">More</button>
+  </nav>
+
+  <section class="panel active" id="dashboard"><div class="environment-banner"><strong>Live beta:</strong> installable and fully functional on this phone. Data is private to this browser until the production cloud database is connected.</div>
+    <div class="section-head"><div><h2>Portfolio performance</h2><div class="muted">Live calculations from the portfolio available to your role.</div></div><span class="data-badge" id="dashboardAsOf"></span></div>
+    <div class="filters">
+      <label>Period<select id="dashRange"><option value="all">All time</option><option value="30">Last 30 days</option><option value="90">Last 90 days</option><option value="365">Last 12 months</option></select></label>
+      <label>Group<select id="dashGroup"><option value="all">All groups</option></select></label>
+      <label>Status<select id="dashStatus"><option value="all">All statuses</option><option value="active">Active</option><option value="due">Due today</option><option value="overdue">Overdue</option><option value="paid">Paid</option></select></label>
+      <label>Refresh<button type="button" id="refreshDashboard" class="btn btn-soft" style="width:100%;margin-top:6px">Recalculate</button></label>
+    </div>
+    <div class="dashboard-metrics">
+      <div class="metric-card"><span class="metric-label">Collection Rate</span><div class="metric-value" id="kpiCollectionRate">0%</div><div class="metric-note">Paid ÷ total repayable</div></div>
+      <div class="metric-card"><span class="metric-label">On-Time Payoff</span><div class="metric-value" id="kpiOnTime">0%</div><div class="metric-note">Paid loans settled on time</div></div>
+      <div class="metric-card"><span class="metric-label">Average Loan</span><div class="metric-value" id="kpiAvgLoan">$0</div><div class="metric-note">Average principal issued</div></div>
+      <div class="metric-card"><span class="metric-label">At-Risk Balance</span><div class="metric-value" id="kpiAtRisk">$0</div><div class="metric-note">Balance already overdue</div></div>
+      <div class="metric-card"><span class="metric-label">Due Today</span><div class="metric-value" id="kpiDueToday">$0</div><div class="metric-note" id="kpiDueTodayCount">0 accounts</div></div>
+      <div class="metric-card"><span class="metric-label">Expected Income</span><div class="metric-value" id="kpiExpectedIncome">$0</div><div class="metric-note">Uncollected fee + interest</div></div>
+    </div>
+    <div class="charts">
+      <div class="chart-card chart-wide"><div class="chart-head"><div><h3>Issued vs collected</h3><div class="muted">Cash movement by month</div></div><div class="chart-legend"><span><i class="legend-dot issued-dot"></i>Issued</span><span><i class="legend-dot collected-dot"></i>Collected</span></div></div><div id="cashFlowChart" class="bar-chart"></div></div>
+      <div class="chart-card"><div class="chart-head"><div><h3>Loan status mix</h3><div class="muted">Number of loans</div></div></div><div id="statusChart" class="donut-wrap"></div></div>
+      <div class="chart-card"><div class="chart-head"><div><h3>Exposure by group</h3><div class="muted">Outstanding principal</div></div></div><div id="groupChart" class="group-bars"></div></div>
+    </div>
+    <div id="dashboardInsights" class="insights"></div>
+  </section>
+
+  <section class="panel" id="loans">
+    <div class="filters"><label style="grid-column:span 2">Search<input id="loanSearch" placeholder="Borrower, group, or note"></label><label>Status<select id="loanStatusFilter"><option value="all">All loans</option><option value="active">Active</option><option value="due">Due today</option><option value="overdue">Overdue</option><option value="paid">Paid</option></select></label><label>Group<select id="loanGroupFilter"><option value="all">All groups</option></select></label></div>
+    <div id="loanList"></div>
+  </section>
+
+  <section class="panel" id="ledger">
+    <div class="section-head"><div><h2>Cash ledger</h2><div class="muted">Every loan disbursement and repayment, with a running cash balance.</div></div><button id="exportLedgerBtn" class="btn btn-dark">Export CSV</button></div>
+    <div class="ledger-summary"><div class="stat"><span>Opening Capital</span><strong id="ledgerOpening">$0</strong></div><div class="stat"><span>Total Disbursed</span><strong id="ledgerDisbursed">$0</strong></div><div class="stat"><span>Total Collected</span><strong id="ledgerCollected">$0</strong></div><div class="stat"><span>Current Cash</span><strong id="ledgerCash">$0</strong></div></div>
+    <div class="filters"><label style="grid-column:span 2">Search<input id="ledgerSearch" placeholder="Borrower, group, user, or note"></label><label>Entry Type<select id="ledgerTypeFilter"><option value="all">All entries</option><option value="disbursement">Loan issued</option><option value="repayment">Repayment</option><option value="adjustment">Terms adjustment</option></select></label><label>Order<select id="ledgerOrder"><option value="desc">Newest first</option><option value="asc">Oldest first</option></select></label></div>
+    <div class="ledger-table-wrap"><table class="ledger-table"><thead><tr><th>Date & time</th><th>Entry</th><th>Borrower / group</th><th>Details</th><th>Money out</th><th>Money in</th><th>Cash after</th><th>Recorded by</th></tr></thead><tbody id="ledgerBody"></tbody></table></div>
+  </section>
+
+  <section class="panel" id="borrowers"><div id="borrowerList"></div></section>
+  <section class="panel" id="groups"><div id="groupList"></div></section>
+  <section class="panel admin-only" id="users"><div id="userList"></div></section>
+  <section class="panel lender-admin-only" id="records">
+    <div class="notice">This live beta stores data on this browser. Export backups regularly. Production launch requires cloud authentication and database credentials; demo passwords must not be used for real customer records.</div>
+    <div class="card"><h3>Default loan terms</h3><div class="muted" style="margin-bottom:12px">These prefill new loans. Each loan can still be adjusted.</div><form id="settingsForm" style="padding:0"><div class="setting-grid"><label>Default interest rate (%)<input id="defaultInterest" type="number" min="0" step="0.01"></label><label>Default fee type<select id="defaultFeeType"><option value="flat">Flat amount</option><option value="percent">Percentage of principal</option></select></label><label>Default fee value<input id="defaultFeeValue" type="number" min="0" step="0.01"></label><label>Default time period<div class="row" style="margin-top:6px"><input id="defaultDurationValue" type="number" min="1" step="1"><select id="defaultDurationUnit"><option value="hours">Hours</option><option value="days">Days</option><option value="weeks">Weeks</option><option value="months">Months</option></select></div></label><label>Opening capital<input id="openingCapital" type="number" min="0" step="0.01"></label><label>Currency<select id="currencySelect"><option value="USD">USD ($)</option><option value="KES">KES (KSh)</option><option value="UGX">UGX (USh)</option><option value="TZS">TZS (TSh)</option><option value="ZAR">ZAR (R)</option><option value="GBP">GBP (£)</option><option value="EUR">EUR (€)</option></select></label></div><div class="form-actions"><button class="btn btn-primary">Save Settings</button></div></form></div>
+    <div class="card"><h3>Backup & restore</h3><div class="actions"><button class="btn btn-dark" id="exportBtn">Export Backup</button><label class="btn btn-soft" style="display:inline-block;margin:0;cursor:pointer">Import Backup<input type="file" id="importInput" accept="application/json" hidden></label></div></div>
+    <div class="card danger-zone admin-only"><h3>Sample data</h3><div class="muted">Replace all current records with the original demonstration portfolio.</div><div class="actions"><button class="btn btn-danger" id="resetSeedBtn">Reset Sample Data</button></div></div>
+  </section>
+</main>
+<button class="fab" id="newLoanBtn">＋ New Loan</button>
+</div>
+
+<dialog id="loanDialog"><div class="modal-head"><h2 id="loanDialogTitle">Add New Loan</h2><button class="close" data-close="loanDialog">×</button></div><form id="loanForm"><input id="editLoanId" type="hidden"><label>Borrower<select id="loanBorrower" required></select></label><div class="row"><label>Principal amount<input id="principal" type="number" min="1" step="0.01" required></label><label>Interest rate (%)<input id="interestRate" type="number" min="0" step="0.01" required><div class="help">Percentage applied once for this loan period.</div></label></div><div class="row"><label>Fee type<select id="feeType"><option value="flat">Flat amount</option><option value="percent">Percentage of principal</option></select></label><label>Fee value<input id="feeValue" type="number" min="0" step="0.01" required></label></div><div class="row"><label>Time period<div class="row" style="margin-top:6px"><input id="durationValue" type="number" min="1" step="1" required><select id="durationUnit"><option value="hours">Hours</option><option value="days">Days</option><option value="weeks">Weeks</option><option value="months">Months</option></select></div></label><label>Date and time given<div class="row" style="margin-top:6px"><input id="dateGiven" type="date" required><input id="timeGiven" type="time" required></div></label></div><div class="row"><label>Due date<input id="dueDate" type="date" required></label><label>Due time<input id="dueTime" type="time" required></label></div><label>Notes<input id="loanNotes" placeholder="Stock, emergency, fuel, return by evening..."></label><div class="terms-preview"><div class="kicker">Repayment summary</div><div class="row3" style="margin-top:8px"><div><span class="muted">Interest</span><strong id="previewInterest">$0</strong></div><div><span class="muted">Fee</span><strong id="previewFee">$0</strong></div><div><span class="muted">Total repayable</span><strong id="previewTotal" class="total">$0</strong></div></div><div class="muted" id="previewTerm" style="margin-top:8px"></div></div><div class="form-actions"><button type="button" class="btn btn-soft" data-close="loanDialog">Cancel</button><button class="btn btn-primary" id="saveLoanBtn">Save Loan</button></div></form></dialog>
+
+<dialog id="borrowerDialog"><div class="modal-head"><h2>Add Borrower</h2><button class="close" data-close="borrowerDialog">×</button></div><form id="borrowerForm"><label>Full name<input id="borrowerName" required></label><label>Phone number<input id="borrowerPhone" type="tel"></label><label>Group<select id="borrowerGroup" required></select></label><div class="form-actions"><button type="button" class="btn btn-soft" data-close="borrowerDialog">Cancel</button><button class="btn btn-primary">Save Borrower</button></div></form></dialog>
+<dialog id="groupDialog"><div class="modal-head"><h2>Add Group</h2><button class="close" data-close="groupDialog">×</button></div><form id="groupForm"><label>Group name<input id="groupName" required></label><label>Contact person<input id="groupContact"></label><div class="form-actions"><button type="button" class="btn btn-soft" data-close="groupDialog">Cancel</button><button class="btn btn-primary">Save Group</button></div></form></dialog>
+<dialog id="paymentDialog"><div class="modal-head"><h2>Record Payment</h2><button class="close" data-close="paymentDialog">×</button></div><form id="paymentForm"><input type="hidden" id="paymentLoanId"><div class="terms-preview" id="paymentLoanSummary"></div><label>Amount paid<input id="paymentAmount" type="number" min="0.01" step="0.01" required></label><div class="row"><label>Payment date<input id="paymentDate" type="date" required></label><label>Payment time<input id="paymentTime" type="time" required></label></div><label>Notes<input id="paymentNotes" placeholder="Cash, mobile money, transfer, partial payment..."></label><div class="form-actions"><button type="button" class="btn btn-soft" data-close="paymentDialog">Cancel</button><button class="btn btn-primary">Save Payment</button></div></form></dialog>
+<dialog id="userDialog"><div class="modal-head"><h2>Add User</h2><button class="close" data-close="userDialog">×</button></div><form id="userForm"><label>Full name<input id="userName" required></label><label>Username<input id="userUsername" required></label><label>Password<input id="userPassword" type="password" minlength="4" required></label><label>Role<select id="userRole"><option value="manager">Delegated Manager</option><option value="lender">Lender</option><option value="admin">Administrator</option></select></label><div id="userGroupScopeWrap"><div class="kicker">Assigned groups</div><div id="userGroupScope" class="scope-grid"></div><div class="help">Delegated managers only see borrowers, loans, collections, and ledger activity in assigned groups.</div></div><div class="form-actions"><button type="button" class="btn btn-soft" data-close="userDialog">Cancel</button><button class="btn btn-primary">Create User</button></div></form></dialog>
+
+<script src="app-1.js"></script>
+<script src="app-2.js"></script>
+<script src="app-3.js"></script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+{
+  "name": "Golden Day Club",
+  "short_name": "Golden Day",
+  "description": "Mobile lending, collections, ledger, and portfolio monitoring.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f4f6f9",
+  "theme_color": "#062c5c",
+  "icons": [
+    {"src":"icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}
+  ]
+}
